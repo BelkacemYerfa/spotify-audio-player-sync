@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+::-webkit-scrollbar {
+  -webkit-transition: width 0.35s linear;
+  width: 14px;
+  transition: width 0.35s linear;
+  scrollbar-gutter: stale;
+}
+
+.LyricHolder:hover::-webkit-scrollbar-thumb {
+  background-color: rgb(255, 255, 255, 0.5);
+}

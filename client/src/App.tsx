@@ -1,0 +1,29 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { Suspense } from "react";
+import { BrowserRouter as Router } from "react-router-dom";
+import { AnimatedRoutes } from "./components/Animation/AnimatedRoutes";
+
+function App() {
+  const client = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+      },
+    },
+  });
+  return (
+    <QueryClientProvider client={client}>
+      <div className="h-screen bg-primary_color_bg font-main_font">
+        <Router>
+          <Suspense fallback={<p className="text-center">Loading...</p>}>
+            <AnimatedRoutes />
+          </Suspense>
+        </Router>
+      </div>
+      <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
+    </QueryClientProvider>
+  );
+}
+
+export default App;
