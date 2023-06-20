@@ -17,7 +17,6 @@ export interface ITrackStream {
 }
 
 export interface ILyrics {
-  startMs: number;
-  durMs: number;
-  text: string;
+  startTimeMs: string;
+  words: string;
 }

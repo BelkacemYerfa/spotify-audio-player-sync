@@ -3,24 +3,16 @@ import { Icon } from "../Icons/Icon";
 import { ProgressBar } from "./ProgressBar";
 import { useCallback, useEffect, useState } from "react";
 import { useAudioPlayer, useAudioPosition } from "react-use-audio-player";
-import { ITrack, ITrackStream } from "../../../@types/track";
-import useAxios from "../../../hooks/useAxios";
-import axios from "axios";
+import { useTrackInfo } from "../../../hooks/useTrackInfo";
 
 interface AudioPlayerProps {
-  setPlaying: (play: boolean) => void;
-  playingTrack: ITrack;
-  previewUrl: string;
+  setPlaying: (playing: boolean) => void;
 }
 
-export const AudioPlayer = ({
-  setPlaying,
-  playingTrack,
-  previewUrl,
-}: AudioPlayerProps) => {
-  const [trackInfo, setTracksInfo] = useState<ITrackStream>();
-  const { togglePlayPause, load, playing, volume } = useAudioPlayer({
-    src: previewUrl,
+export const AudioPlayer = ({ setPlaying }: AudioPlayerProps) => {
+  const { track } = useTrackInfo();
+  const { togglePlayPause, loading, playing, volume } = useAudioPlayer({
+    src: track?.preview_url,
     format: "mp3",
     autoplay: false,
     onend: () => {
@@ -42,55 +34,28 @@ export const AudioPlayer = ({
     const sec = (fraction * 60) / 100;
     return (Math.floor(getMin) + sec).toFixed(2).replace(".", ":");
   };
-
-  const getTrack = () => {
-    const options = {
-      method: "GET",
-      url: "https://spotify23.p.rapidapi.com/tracks/",
-      params: {
-        ids: playingTrack?.id,
-      },
-      headers: {
-        "X-RapidAPI-Key": "8d6796a13fmsh5b6b09d9f9ca34ep1262acjsnbbd1102f05aa",
-        "X-RapidAPI-Host": "spotify23.p.rapidapi.com",
-      },
-    };
-    return axios.request(options);
-  };
-  const {
-    data: trackRelatedInfo,
-    isLoading: trackLoading,
-    refetch: getTrackInfo,
-  } = useAxios({
-    queryKey: "trackInfo",
-    fetchFunc: () => getTrack(),
-  });
   useEffect(() => {
     setPlaying(playing);
-  }, [playing]);
-  useEffect(() => {
-    getTrack();
-    if (trackRelatedInfo) {
-      console.log(trackRelatedInfo?.data?.tracks[0]?.preview_url);
-    }
-  }, [playingTrack.id]);
+  }, [track?.preview_url, playing]);
   return (
     <div className="flex h-fit items-center justify-between w-full py-2 px-[18px] bg-audio_player_bg">
       <div className="w-1/3 items-center gap-x-[21px] hidden md:flex  ">
-        <img
-          src={playingTrack?.song_art_image_thumbnail_url}
-          height={64}
-          width={64}
-          className="h-[4rem] w-[4rem] "
-          alt="title"
-        />
+        {track?.song_art_image_thumbnail_url && (
+          <img
+            src={track?.song_art_image_thumbnail_url}
+            height={64}
+            width={64}
+            className="h-[4rem] w-[4rem] "
+            alt="title"
+          />
+        )}
         <div className="flex items-center gap-x-8">
           <div className="flex flex-col ">
             <h3 className=" text-base sm:text-lg/[23px] text-white font-[450]">
-              {playingTrack?.title_with_featured}
+              {track?.title_with_featured}
             </h3>
             <p className=" text-sm sm:text-base/[20px] text-sub_title_color">
-              {playingTrack?.name}
+              {track?.name}
             </p>
           </div>
         </div>
@@ -123,7 +88,7 @@ export const AudioPlayer = ({
               <ColorRing
                 height={40}
                 colors={["#fff", "#fff", "#fff", "#fff", "#fff"]}
-                visible={trackLoading}
+                visible={loading}
                 wrapperClass="w-10 h-10 rounded-full bg-gray-700/80 absolute left-0 top-0"
               />
               <Icon

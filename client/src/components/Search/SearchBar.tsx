@@ -3,14 +3,59 @@ import { Icon } from "../Shared/Icons/Icon";
 import axios from "axios";
 import useAxios from "../../hooks/useAxios";
 import { ITrack } from "../../@types/track";
+import { useTracks } from "../../hooks/useTrackInfo";
+import { ApiRequest } from "../../static/apiRequest";
 
 export const SearchBar = () => {
   const ref = useRef<HTMLInputElement>(null);
+  const { reset, tracks, setAllTracks } = useTracks();
 
-  const submitForm = (e: FormEvent) => {
+  const {
+    data,
+    isLoading,
+    refetch: getNewTracks,
+  } = useAxios({
+    queryKey: "search",
+    fetchFunc: async () =>
+      axios.request(
+        ApiRequest({
+          url: "https://spotify23.p.rapidapi.com/search/",
+          params: {
+            q: ref.current?.value,
+            type: "multi",
+            offset: "0",
+            limit: "5",
+            numberOfTopResults: "5",
+          },
+        })
+      ),
+  });
+  const submitForm = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const query = ref.current?.value;
+    if (query) {
+      reset();
+      getNewTracks();
+      if (data?.data?.tracks) {
+        console.log(data?.data?.tracks);
+        data?.data?.tracks?.items?.map((item: any) => {
+          const result: ITrack = {
+            id: item.data.id,
+            song_art_image_thumbnail_url:
+              item.data.albumOfTrack.coverArt.sources[0].url,
+            title_with_featured: item.data.name,
+            date: String(formatTime(item.data.duration.totalMilliseconds)),
+            name: item.data.artists.items[0].profile.name,
+            playing: false,
+          };
+          setAllTracks(result);
+        });
+      }
+    }
   };
-  useEffect(() => {}, []);
+  useEffect(() => {
+    console.log(tracks);
+  }, [tracks]);
   const formatTime = (time: number) => {
     const min = Math.floor(time / 60000);
     const sec = ((time % 60000) / 1000).toFixed(0);

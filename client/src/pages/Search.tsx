@@ -33,13 +33,6 @@ const Search = () => {
                 {tracks.map((item) => (
                   <MusicCard
                     tracks={track}
-                    setCurrentTrackInfo={(currentTrack: ITrack) =>
-                      setPlayingTrack(currentTrack)
-                    }
-                    setPreviewUrl={(preview_url: string) =>
-                      setPreviewUrl(preview_url)
-                    }
-                    setLyrics={(lyrics: ILyrics[]) => setLyrics(lyrics)}
                     key={item.id}
                     releasedate={item.date}
                     title={item.title_with_featured}
@@ -53,24 +46,11 @@ const Search = () => {
             )}
           </div>
           <div className="w-2/3 hidden md:block rounded-l-md  bg-home_decorative_color_one overflow-y-auto max-h-3/5 p-3 ">
-            <Lyrics playing={playing} dataLyric={lyrics} />
+            <Lyrics playing={playing} />
           </div>
         </div>
         <AudioPlayerProvider>
-          <AudioPlayer
-            setPlaying={setPlaying}
-            playingTrack={
-              playingTrack ?? {
-                id: "",
-                song_art_image_thumbnail_url: "",
-                title_with_featured: "",
-                date: "",
-                name: "",
-                playing: false,
-              }
-            }
-            previewUrl={preview_url}
-          />
+          <AudioPlayer setPlaying={(play: boolean) => setPlaying(play)} />
         </AudioPlayerProvider>
       </div>
     </div>

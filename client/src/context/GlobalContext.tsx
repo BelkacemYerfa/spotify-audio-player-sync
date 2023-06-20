@@ -29,6 +29,7 @@ const enum REDUCER_ACTIONS {
   SET_TRACK_LYRICS,
   SET_TRACK_INFO,
   SET_ALL_TRACKS,
+  RESET,
 }
 
 type Reducer_Action = {
@@ -42,6 +43,11 @@ const reducer = (state: IStateType, action: Reducer_Action): IStateType => {
       return { ...state, lyrics: action.payload as ILyrics[] };
     case REDUCER_ACTIONS.SET_ALL_TRACKS:
       return { ...state, tracks: [...state.tracks, action.payload as ITrack] };
+    case REDUCER_ACTIONS.RESET:
+      return {
+        ...state,
+        tracks: [],
+      };
     case REDUCER_ACTIONS.SET_TRACK_INFO:
       return { ...state, track: action.payload as ITrackInfo };
     default:
@@ -66,8 +72,19 @@ const useGlobalProvider = (initialState: IStateType) => {
       }),
     []
   );
-
-  return { state, setAllTracks, setLyrics };
+  const reset = useCallback(() => {
+    dispatch({
+      type: REDUCER_ACTIONS.RESET,
+      payload: initialState.track,
+    });
+  }, []);
+  const setTrackInfo = useCallback((track: ITrackInfo) => {
+    dispatch({
+      type: REDUCER_ACTIONS.SET_TRACK_INFO,
+      payload: track,
+    });
+  }, []);
+  return { state, setAllTracks, setLyrics, reset, setTrackInfo };
 };
 
 type GlobalContextType = ReturnType<typeof useGlobalProvider>;
@@ -76,6 +93,8 @@ const initialContextState: GlobalContextType = {
   state: initialState,
   setAllTracks: () => {},
   setLyrics: () => {},
+  reset: () => {},
+  setTrackInfo: () => {},
 };
 
 export const GlobalContext =
@@ -85,19 +104,20 @@ export const GlobalProvider = ({
   children,
   ...initialState
 }: ChildrenType & IStateType): ReactElement => {
-  const { state, setAllTracks, setLyrics } = useGlobalProvider(initialState);
+  const { state, setAllTracks, setLyrics, reset, setTrackInfo } =
+    useGlobalProvider(initialState);
   const options = {
     method: "GET",
     url: "https://spotify23.p.rapidapi.com/search/",
     params: {
-      q: "eminem",
+      q: "Hello",
       type: "multi",
       offset: "0",
-      limit: "10",
+      limit: "5",
       numberOfTopResults: "5",
     },
     headers: {
-      "X-RapidAPI-Key": "8d6796a13fmsh5b6b09d9f9ca34ep1262acjsnbbd1102f05aa",
+      "X-RapidAPI-Key": "41fa46cb86msh227ef74d0864028p16dcdbjsn9250ccc239c6",
       "X-RapidAPI-Host": "spotify23.p.rapidapi.com",
     },
   };
@@ -111,25 +131,27 @@ export const GlobalProvider = ({
     return min + ":" + (parseInt(sec) < 10 ? "0" : "") + sec;
   };
   useEffect(() => {
-    if (data?.data.tracks) {
-      console.log(data?.data.tracks);
+    if (data?.data?.tracks) {
+      console.log(data?.data?.tracks);
       data?.data?.tracks?.items?.map((item: any) => {
         const result: ITrack = {
           id: item.data.id,
           song_art_image_thumbnail_url:
             item.data.albumOfTrack.coverArt.sources[0].url,
           title_with_featured: item.data.name,
-          date: formatTime(item.data.duration.totalMilliseconds).toString(),
-          name: item.data.artist?.items[0].profile.name,
+          date: String(formatTime(item.data.duration.totalMilliseconds)),
+          name: item.data.artists.items[0].profile.name,
           playing: false,
         };
         setAllTracks(result);
       });
     }
   }, [data]);
-  if (isLoading) return <Loader />;
+  if (isLoading) return <Loader height={130} width={130} />;
   return (
-    <GlobalContext.Provider value={{ setAllTracks, state, setLyrics }}>
+    <GlobalContext.Provider
+      value={{ setAllTracks, state, setLyrics, reset, setTrackInfo }}
+    >
       {children}
     </GlobalContext.Provider>
   );

@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { PlayMusicBtn } from "../Btns/PlayBtn";
 import { Icon } from "../Icons/Icon";
-import { ILyrics, ITrack } from "../../../@types/track";
+import { ILyrics, ITrack, ITrackInfo } from "../../../@types/track";
 import useAxios from "../../../hooks/useAxios";
 import axios from "axios";
+import { useLyrics, useTrackInfo } from "../../../hooks/useTrackInfo";
+import { ApiRequest } from "../../../static/apiRequest";
 
 interface MusicCardProps {
   title: string;
@@ -13,9 +15,6 @@ interface MusicCardProps {
   id: string;
   playing: boolean;
   tracks: ITrack[];
-  setCurrentTrackInfo: (currentTrack: ITrack) => void;
-  setPreviewUrl: (preview_url: string) => void;
-  setLyrics: (lyrics: ILyrics[]) => void;
 }
 
 export const MusicCard = ({
@@ -26,40 +25,35 @@ export const MusicCard = ({
   id,
   playing,
   tracks,
-  setCurrentTrackInfo,
-  setPreviewUrl,
-  setLyrics,
 }: MusicCardProps) => {
-  const getSearchResult = async (params: string) => {
-    const options = {
-      method: "GET",
-      url: "https://spotify23.p.rapidapi.com/tracks/",
-      params: {
-        ids: params,
-      },
-      headers: {
-        "X-RapidAPI-Key": "f2c6eaf49amsh085b646d7d6f035p1ceea8jsnb488d2695adc",
-        "X-RapidAPI-Host": "spotify23.p.rapidapi.com",
-      },
-    };
-
-    return axios.request(options);
-  };
-  const { data, isLoading, refetch } = useAxios({
+  const { track, setTrackInfo } = useTrackInfo();
+  const { lyrics, setLyrics } = useLyrics();
+  const {
+    data,
+    isLoading,
+    refetch: getTrackInfo,
+  } = useAxios({
     queryKey: "searchResult",
-    fetchFunc: () => getSearchResult(id.toString()),
+    fetchFunc: async () =>
+      axios.request(
+        ApiRequest({
+          url: "https://spotify23.p.rapidapi.com/tracks/",
+          params: {
+            ids: id,
+          },
+        })
+      ),
   });
   const getLyrics = async (id: string) => {
     const options = {
       method: "GET",
-      url: "https://spotify-scraper.p.rapidapi.com/v1/track/lyrics",
+      url: "https://spotify81.p.rapidapi.com/track_lyrics",
       params: {
-        trackId: id,
-        format: "json",
+        id: id,
       },
       headers: {
-        "X-RapidAPI-Key": "f2c6eaf49amsh085b646d7d6f035p1ceea8jsnb488d2695adc",
-        "X-RapidAPI-Host": "spotify-scraper.p.rapidapi.com",
+        "X-RapidAPI-Key": "27e599f373msh6ff3cf0773d2cc5p10e9bajsnce126f0944c4",
+        "X-RapidAPI-Host": "spotify81.p.rapidapi.com",
       },
     };
     return axios.request(options);
@@ -67,31 +61,41 @@ export const MusicCard = ({
   const {
     data: lyricsData,
     isLoading: lyricsIsLoading,
-    refetch: lyricsRefetch,
+    refetch: getAllLyrics,
   } = useAxios({
     queryKey: "lyrics",
-    fetchFunc: () => getLyrics(id.toString()),
+    fetchFunc: () => getLyrics(id),
   });
-  console.log(lyricsData?.data);
   return (
     <div
-      id={id.toString()}
+      id={id}
       className="flex justify-between items-center w-full py-[10px] px-4 duration-300 ease-linear cursor-pointer hover:bg-ui-gray-color-three group rounded-md"
       onClick={() => {
-        const currentIndexTrack = tracks.findIndex((item) => {
-          return item.id === id && !playing;
-        });
-        refetch();
-        lyricsRefetch();
-        setLyrics(lyricsData?.data);
-
-        setPreviewUrl(data?.data?.tracks[0]?.preview_url);
-        setCurrentTrackInfo(tracks[currentIndexTrack]);
+        getTrackInfo();
+        if (data?.data.tracks[0]) {
+          const track: ITrackInfo = {
+            id: data?.data.tracks[0].id,
+            title_with_featured: data?.data.tracks[0].name,
+            song_art_image_thumbnail_url:
+              data?.data.tracks[0].album.images[0].url,
+            date: data?.data.tracks[0].album.release_date,
+            preview_url: data?.data.tracks[0].preview_url,
+            playing: false,
+            name: data?.data.tracks[0].artists[0].name,
+          };
+          setTrackInfo(track);
+        }
+        getAllLyrics();
+        if (lyricsData?.data?.lyrics?.lines) {
+          setLyrics(lyricsData?.data?.lyrics?.lines);
+        } else {
+          setLyrics([]);
+        }
       }}
     >
       <div className="flex items-center gap-x-5">
         <div className="flex items-center gap-x-2">
-          <PlayMusicBtn isPlaying={playing} />
+          <PlayMusicBtn isPlaying={track.playing} />
           <img
             src={src}
             className="w-[52px] h-[52px]"
