@@ -6,6 +6,7 @@ import { AudioPlayerProvider } from "react-use-audio-player";
 import { AudioPlayer } from "../components/Shared/Audio/AudioPlayer";
 import { Radio } from "react-loader-spinner";
 import { Lyrics } from "../components/Shared/lyrics/Lyrics";
+import { useTracks } from "../hooks/useTrackInfo";
 
 const Search = () => {
   const [track, setTracks] = useState<ITrack[]>([]);
@@ -14,16 +15,14 @@ const Search = () => {
   const [playing, setPlaying] = useState<boolean>(false);
   const [preview_url, setPreviewUrl] = useState<string>("");
   const [lyrics, setLyrics] = useState<ILyrics[]>([]);
+  const { tracks } = useTracks();
   return (
     <div className="h-screen w-full space-y-10 flex flex-col ">
       <div className="w-full h-full z-10 flex flex-col bottom-0 ">
         <div className="flex w-full flex-1 overflow-y-auto max-h-3/5">
           <div className="relative flex flex-col w-full md:w-1/3 space-y-4 py-3 overflow-y-auto max-h-3/5">
             <div className="sticky w-full">
-              <SearchBar
-                setTracks={(track: ITrack[]) => setTracks(track)}
-                setIsLoading={(isLoading: boolean) => setIsLoading(isLoading)}
-              />
+              <SearchBar />
             </div>
             {isLoading ? (
               <div className="flex-1 w-full flex items-center justify-center ">
@@ -31,7 +30,7 @@ const Search = () => {
               </div>
             ) : (
               <div className="space-y-2 overflow-y-auto LyricHolder flex items-center flex-col max-h-3/5 w-full ">
-                {track.map((item) => (
+                {tracks.map((item) => (
                   <MusicCard
                     tracks={track}
                     setCurrentTrackInfo={(currentTrack: ITrack) =>
@@ -62,7 +61,7 @@ const Search = () => {
             setPlaying={setPlaying}
             playingTrack={
               playingTrack ?? {
-                id: 0,
+                id: "",
                 song_art_image_thumbnail_url: "",
                 title_with_featured: "",
                 date: "",

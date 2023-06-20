@@ -10,7 +10,7 @@ interface MusicCardProps {
   author: string;
   src: string;
   releasedate: string;
-  id: number;
+  id: string;
   playing: boolean;
   tracks: ITrack[];
   setCurrentTrackInfo: (currentTrack: ITrack) => void;

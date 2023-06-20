@@ -1,10 +1,14 @@
 export interface ITrack {
-  id: number;
+  id: string;
   song_art_image_thumbnail_url: string;
   title_with_featured: string;
   date: string;
   name: string;
   playing: boolean;
+}
+
+export interface ITrackInfo extends ITrack {
+  preview_url: string;
 }
 
 export interface ITrackStream {
