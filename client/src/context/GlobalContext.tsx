@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { ILyrics, ITrack, ITrackInfo } from "../@types/track";
 import { Loader } from "../components/Shared/Loaders/Loader";
 import useAxios from "../hooks/useAxios";
+import { ApiRequest } from "../static/apiRequest";
+import timeFormater from "../static/timeFormater";
 
 interface IStateType {
   lyrics: ILyrics[];
@@ -106,30 +108,22 @@ export const GlobalProvider = ({
 }: ChildrenType & IStateType): ReactElement => {
   const { state, setAllTracks, setLyrics, reset, setTrackInfo } =
     useGlobalProvider(initialState);
-  const options = {
-    method: "GET",
-    url: "https://spotify23.p.rapidapi.com/search/",
-    params: {
-      q: "Hello",
-      type: "multi",
-      offset: "0",
-      limit: "5",
-      numberOfTopResults: "5",
-    },
-    headers: {
-      "X-RapidAPI-Key": "41fa46cb86msh227ef74d0864028p16dcdbjsn9250ccc239c6",
-      "X-RapidAPI-Host": "spotify23.p.rapidapi.com",
-    },
-  };
   const { data, isLoading } = useAxios({
     queryKey: "initialTracks",
-    fetchFunc: async () => axios.request(options),
+    fetchFunc: async () =>
+      axios.request(
+        ApiRequest({
+          url: "https://spotify23.p.rapidapi.com/search/",
+          params: {
+            q: "Hello",
+            type: "multi",
+            offset: "0",
+            limit: "20",
+            numberOfTopResults: "5",
+          },
+        })
+      ),
   });
-  const formatTime = (time: number) => {
-    const min = Math.floor(time / 60000);
-    const sec = ((time % 60000) / 1000).toFixed(0);
-    return min + ":" + (parseInt(sec) < 10 ? "0" : "") + sec;
-  };
   useEffect(() => {
     if (data?.data?.tracks) {
       console.log(data?.data?.tracks);
@@ -139,7 +133,7 @@ export const GlobalProvider = ({
           song_art_image_thumbnail_url:
             item.data.albumOfTrack.coverArt.sources[0].url,
           title_with_featured: item.data.name,
-          date: String(formatTime(item.data.duration.totalMilliseconds)),
+          date: String(timeFormater(item.data.duration.totalMilliseconds)),
           name: item.data.artists.items[0].profile.name,
           playing: false,
         };

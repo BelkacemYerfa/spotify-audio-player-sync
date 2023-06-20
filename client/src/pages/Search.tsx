@@ -5,7 +5,7 @@ import { ILyrics, ITrack } from "../@types/track";
 import { AudioPlayerProvider } from "react-use-audio-player";
 import { AudioPlayer } from "../components/Shared/Audio/AudioPlayer";
 import { Radio } from "react-loader-spinner";
-import { Lyrics } from "../components/Shared/lyrics/Lyrics";
+import { Lyrics } from "./Lyrics";
 import { useTracks } from "../hooks/useTrackInfo";
 
 const Search = () => {

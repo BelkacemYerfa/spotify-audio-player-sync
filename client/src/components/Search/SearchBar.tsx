@@ -5,6 +5,7 @@ import useAxios from "../../hooks/useAxios";
 import { ITrack } from "../../@types/track";
 import { useTracks } from "../../hooks/useTrackInfo";
 import { ApiRequest } from "../../static/apiRequest";
+import timeFormater from "../../static/timeFormater";
 
 export const SearchBar = () => {
   const ref = useRef<HTMLInputElement>(null);
@@ -24,7 +25,7 @@ export const SearchBar = () => {
             q: ref.current?.value,
             type: "multi",
             offset: "0",
-            limit: "5",
+            limit: "20",
             numberOfTopResults: "5",
           },
         })
@@ -44,7 +45,7 @@ export const SearchBar = () => {
             song_art_image_thumbnail_url:
               item.data.albumOfTrack.coverArt.sources[0].url,
             title_with_featured: item.data.name,
-            date: String(formatTime(item.data.duration.totalMilliseconds)),
+            date: String(timeFormater(item.data.duration.totalMilliseconds)),
             name: item.data.artists.items[0].profile.name,
             playing: false,
           };
@@ -53,14 +54,7 @@ export const SearchBar = () => {
       }
     }
   };
-  useEffect(() => {
-    console.log(tracks);
-  }, [tracks]);
-  const formatTime = (time: number) => {
-    const min = Math.floor(time / 60000);
-    const sec = ((time % 60000) / 1000).toFixed(0);
-    return min + ":" + (parseInt(sec) < 10 ? "0" : "") + sec;
-  };
+
   return (
     <form
       className=" w-full flex justify-center p-2"

@@ -10,6 +10,7 @@ export const AnimatedRoutes = () => {
     <AnimatePresence mode="wait">
       <Routes key={location.pathname} location={location}>
         <Route element={<Search />} path="/" />
+        <Route element={<Search />} path="/:trackId" />
       </Routes>
     </AnimatePresence>
   );

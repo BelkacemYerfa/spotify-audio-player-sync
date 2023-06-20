@@ -6,6 +6,7 @@ import useAxios from "../../../hooks/useAxios";
 import axios from "axios";
 import { useLyrics, useTrackInfo } from "../../../hooks/useTrackInfo";
 import { ApiRequest } from "../../../static/apiRequest";
+import { Link } from "react-router-dom";
 
 interface MusicCardProps {
   title: string;
@@ -67,8 +68,8 @@ export const MusicCard = ({
     fetchFunc: () => getLyrics(id),
   });
   return (
-    <div
-      id={id}
+    <Link
+      to={`/${id}`}
       className="flex justify-between items-center w-full py-[10px] px-4 duration-300 ease-linear cursor-pointer hover:bg-ui-gray-color-three group rounded-md"
       onClick={() => {
         getTrackInfo();
@@ -116,6 +117,6 @@ export const MusicCard = ({
       <p className="text-lg/[23px] text-sub_title_color font-[450]">
         {releasedate}
       </p>
-    </div>
+    </Link>
   );
 };

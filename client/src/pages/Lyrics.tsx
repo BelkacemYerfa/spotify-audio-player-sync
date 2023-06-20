@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { useLyrics } from "../../../hooks/useTrackInfo";
+import { useLyrics } from "../hooks/useTrackInfo";
+import { useParams } from "react-router-dom";
 
 interface LyricsProps {
   playing: boolean;
 }
 
 export const Lyrics = ({ playing }: LyricsProps) => {
+  const { trackId } = useParams();
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [activeIndex, setActiveIndex] = useState<number>(-1);
   const ref = useRef<HTMLDivElement>(null);
@@ -13,7 +15,6 @@ export const Lyrics = ({ playing }: LyricsProps) => {
   useEffect(() => {
     if (dataLyric) {
       let timeoutIds: number[] = [];
-
       for (let index = activeIndex + 1; index < dataLyric.length; index++) {
         const timeoutId = setTimeout(() => {
           setActiveIndex(index);
@@ -41,12 +42,12 @@ export const Lyrics = ({ playing }: LyricsProps) => {
           break;
         }
       }
-      console.log(timeoutIds);
+
       return () => {
         timeoutIds.forEach((timeoutId) => clearTimeout(timeoutId));
       };
     }
-  }, [playing]);
+  }, [dataLyric, playing, trackId]);
   return (
     <div className="max-w-[80%] m-auto py-10 ">
       <div className=" space-y-3 " ref={ref}>
