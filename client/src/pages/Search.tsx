@@ -1,21 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SearchBar } from "../components/Search/SearchBar";
 import { MusicCard } from "../components/Shared/CardLinks/MusicCard";
-import { ILyrics, ITrack } from "../@types/track";
 import { AudioPlayerProvider } from "react-use-audio-player";
 import { AudioPlayer } from "../components/Shared/Audio/AudioPlayer";
-import { Radio } from "react-loader-spinner";
 import { Lyrics } from "./Lyrics";
-import { useTracks } from "../hooks/useTrackInfo";
+import { useLoading, useTracks } from "../hooks/useTrackInfo";
+import { Loader } from "../components/Shared/Loaders/Loader";
 
 const Search = () => {
-  const [track, setTracks] = useState<ITrack[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [playingTrack, setPlayingTrack] = useState<ITrack>();
   const [playing, setPlaying] = useState<boolean>(false);
-  const [preview_url, setPreviewUrl] = useState<string>("");
-  const [lyrics, setLyrics] = useState<ILyrics[]>([]);
+  const [Loading, setLoading] = useState<boolean>(false);
   const { tracks } = useTracks();
+  const {
+    isLoading: { loading },
+  } = useLoading();
+  useEffect(() => {
+    setLoading(loading);
+  }, [loading]);
   return (
     <div className="h-screen w-full space-y-10 flex flex-col ">
       <div className="w-full h-full z-10 flex flex-col bottom-0 ">
@@ -24,17 +25,14 @@ const Search = () => {
             <div className="sticky w-full">
               <SearchBar />
             </div>
-            {isLoading ? (
-              <div className="flex-1 w-full flex items-center justify-center ">
-                <Radio />
-              </div>
+            {Loading ? (
+              <Loader />
             ) : (
               <div className="space-y-2 overflow-y-auto LyricHolder flex items-center flex-col max-h-3/5 w-full ">
                 {tracks.map((item) => (
                   <MusicCard
-                    tracks={track}
                     key={item.id}
-                    releasedate={item.date}
+                    releaseDate={item.date}
                     title={item.title_with_featured}
                     src={item.song_art_image_thumbnail_url}
                     author={item?.name}

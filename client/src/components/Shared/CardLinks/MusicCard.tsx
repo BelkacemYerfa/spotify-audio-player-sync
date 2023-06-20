@@ -12,20 +12,18 @@ interface MusicCardProps {
   title: string;
   author: string;
   src: string;
-  releasedate: string;
+  releaseDate: string;
   id: string;
   playing: boolean;
-  tracks: ITrack[];
 }
 
 export const MusicCard = ({
   title,
   author,
   src,
-  releasedate,
+  releaseDate,
   id,
   playing,
-  tracks,
 }: MusicCardProps) => {
   const { track, setTrackInfo } = useTrackInfo();
   const { lyrics, setLyrics } = useLyrics();
@@ -115,7 +113,7 @@ export const MusicCard = ({
         </div>
       </div>
       <p className="text-lg/[23px] text-sub_title_color font-[450]">
-        {releasedate}
+        {releaseDate}
       </p>
     </Link>
   );

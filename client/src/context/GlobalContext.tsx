@@ -1,7 +1,7 @@
 import { ReactElement, createContext, useCallback, useReducer } from "react";
 import axios from "axios";
 import { useEffect } from "react";
-import { ILyrics, ITrack, ITrackInfo } from "../@types/track";
+import { ILoading, ILyrics, ITrack, ITrackInfo } from "../@types/track";
 import { Loader } from "../components/Shared/Loaders/Loader";
 import useAxios from "../hooks/useAxios";
 import { ApiRequest } from "../static/apiRequest";
@@ -11,6 +11,7 @@ interface IStateType {
   lyrics: ILyrics[];
   tracks: ITrack[];
   track: ITrackInfo;
+  isLoading: ILoading;
 }
 
 export let initialState: IStateType = {
@@ -25,6 +26,9 @@ export let initialState: IStateType = {
     preview_url: "",
     date: "",
   },
+  isLoading: {
+    loading: false,
+  },
 };
 
 const enum REDUCER_ACTIONS {
@@ -32,11 +36,12 @@ const enum REDUCER_ACTIONS {
   SET_TRACK_INFO,
   SET_ALL_TRACKS,
   RESET,
+  SET_LOADER_SEARCH,
 }
 
 type Reducer_Action = {
   type: REDUCER_ACTIONS;
-  payload: ILyrics[] | ITrack | ITrackInfo;
+  payload: ILyrics[] | ITrack | ITrackInfo | ILoading;
 };
 
 const reducer = (state: IStateType, action: Reducer_Action): IStateType => {
@@ -52,6 +57,8 @@ const reducer = (state: IStateType, action: Reducer_Action): IStateType => {
       };
     case REDUCER_ACTIONS.SET_TRACK_INFO:
       return { ...state, track: action.payload as ITrackInfo };
+    case REDUCER_ACTIONS.SET_LOADER_SEARCH:
+      return { ...state, isLoading: action.payload as ILoading };
     default:
       throw new Error();
   }
@@ -86,7 +93,14 @@ const useGlobalProvider = (initialState: IStateType) => {
       payload: track,
     });
   }, []);
-  return { state, setAllTracks, setLyrics, reset, setTrackInfo };
+
+  const setIsLoading = useCallback((loading: ILoading) => {
+    dispatch({
+      type: REDUCER_ACTIONS.SET_TRACK_INFO,
+      payload: loading,
+    });
+  }, []);
+  return { state, setAllTracks, setLyrics, reset, setTrackInfo, setIsLoading };
 };
 
 type GlobalContextType = ReturnType<typeof useGlobalProvider>;
@@ -97,6 +111,7 @@ const initialContextState: GlobalContextType = {
   setLyrics: () => {},
   reset: () => {},
   setTrackInfo: () => {},
+  setIsLoading: () => {},
 };
 
 export const GlobalContext =
@@ -106,7 +121,7 @@ export const GlobalProvider = ({
   children,
   ...initialState
 }: ChildrenType & IStateType): ReactElement => {
-  const { state, setAllTracks, setLyrics, reset, setTrackInfo } =
+  const { state, setAllTracks, setLyrics, reset, setTrackInfo, setIsLoading } =
     useGlobalProvider(initialState);
   const { data, isLoading } = useAxios({
     queryKey: "initialTracks",
@@ -144,7 +159,14 @@ export const GlobalProvider = ({
   if (isLoading) return <Loader height={130} width={130} />;
   return (
     <GlobalContext.Provider
-      value={{ setAllTracks, state, setLyrics, reset, setTrackInfo }}
+      value={{
+        setAllTracks,
+        state,
+        setLyrics,
+        reset,
+        setTrackInfo,
+        setIsLoading,
+      }}
     >
       {children}
     </GlobalContext.Provider>

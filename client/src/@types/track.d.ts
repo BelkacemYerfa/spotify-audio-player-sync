@@ -20,3 +20,7 @@ export interface ILyrics {
   startTimeMs: string;
   words: string;
 }
+
+export interface ILoading {
+  loading: boolean;
+}

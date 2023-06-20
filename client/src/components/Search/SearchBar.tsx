@@ -3,17 +3,17 @@ import { Icon } from "../Shared/Icons/Icon";
 import axios from "axios";
 import useAxios from "../../hooks/useAxios";
 import { ITrack } from "../../@types/track";
-import { useTracks } from "../../hooks/useTrackInfo";
+import { useLoading, useTracks } from "../../hooks/useTrackInfo";
 import { ApiRequest } from "../../static/apiRequest";
 import timeFormater from "../../static/timeFormater";
 
 export const SearchBar = () => {
   const ref = useRef<HTMLInputElement>(null);
   const { reset, tracks, setAllTracks } = useTracks();
-
+  const { isLoading, setIsLoading } = useLoading();
   const {
     data,
-    isLoading,
+    isLoading: TracksLoading,
     refetch: getNewTracks,
   } = useAxios({
     queryKey: "search",
@@ -37,6 +37,9 @@ export const SearchBar = () => {
     if (query) {
       reset();
       getNewTracks();
+      setIsLoading({
+        loading: true,
+      });
       if (data?.data?.tracks) {
         console.log(data?.data?.tracks);
         data?.data?.tracks?.items?.map((item: any) => {
@@ -50,6 +53,9 @@ export const SearchBar = () => {
             playing: false,
           };
           setAllTracks(result);
+        });
+        setIsLoading({
+          loading: false,
         });
       }
     }

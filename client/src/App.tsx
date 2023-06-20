@@ -13,13 +13,18 @@ function App() {
       },
     },
   });
-  const { tracks, lyrics, track } = initialState;
+  const { tracks, lyrics, track, isLoading } = initialState;
   return (
     <QueryClientProvider client={client}>
       <div className="h-screen bg-primary_color_bg font-main_font">
         <Router>
           <Suspense fallback={<p className="text-center">Loading...</p>}>
-            <GlobalProvider lyrics={lyrics} tracks={tracks} track={track}>
+            <GlobalProvider
+              lyrics={lyrics}
+              tracks={tracks}
+              track={track}
+              isLoading={isLoading}
+            >
               <AnimatedRoutes />
             </GlobalProvider>
           </Suspense>
