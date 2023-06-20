@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { ILyrics, ITrack, ITrackInfo } from "../@types/track";
+import { ILoading, ILyrics, ITrack, ITrackInfo } from "../@types/track";
 import { GlobalContext } from "../context/GlobalContext";
 
 type useTracksType = {
@@ -41,4 +41,17 @@ export const useLyrics = (): useLyricsType => {
     setLyrics,
   } = useContext(GlobalContext);
   return { lyrics, setLyrics };
+};
+
+type useLoadingType = {
+  isLoading: ILoading;
+  setIsLoading: (loading: ILoading) => void;
+};
+
+export const useLoading = (): useLoadingType => {
+  const {
+    state: { isLoading },
+    setIsLoading,
+  } = useContext(GlobalContext);
+  return { isLoading, setIsLoading };
 };
