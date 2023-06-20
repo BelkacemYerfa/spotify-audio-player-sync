@@ -15,7 +15,7 @@ This repository contains a simple web application called "Audio Reader" that all
 1. Clone the repository to your local machine:
 
    ```
-   git clone https://github.com/your-username/audio-reader-web-app.git
+   git clone https://github.com/BelkacemYerfa/spotify
    ```
 2. Run the command :
    ```
