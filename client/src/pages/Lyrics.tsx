@@ -73,8 +73,6 @@ export const Lyrics = ({ playing }: LyricsProps) => {
       setLyrics(lyricsData?.data?.lyrics?.lines);
       console.log(lyricsData?.data?.lyrics?.lines);
     }
-
-    console.log(dataLyric);
   }, [trackId, getAllLyrics, lyricsData?.data?.lyrics?.lines]);
   useEffect(() => {
     const lyric = dataLyric?.findIndex((lyric: ILyrics) => {
@@ -85,6 +83,9 @@ export const Lyrics = ({ playing }: LyricsProps) => {
     });
     setActiveIndex(lyric ?? -1);
   }, [currentLyric]);
+  useEffect(() => {
+    setActiveIndex(-1);
+  }, [trackId]);
   useEffect(() => {
     getTrackInfo();
     if (data?.data.tracks[0]) {
@@ -139,31 +140,37 @@ export const Lyrics = ({ playing }: LyricsProps) => {
   return (
     <div className="max-w-[80%] m-auto py-10 ">
       <div className=" space-y-3 " ref={ref}>
-        {lyricsIsLoading ? (
-          <Loader />
-        ) : dataLyric.length !== 0 ? (
-          dataLyric?.map((item, index) => (
-            <p
-              key={index}
-              className={`${
-                index < activeIndex
-                  ? "text-white/60"
-                  : index === activeIndex
-                  ? "text-white/90"
-                  : "text-black opacity-80"
-              } text-[1.5rem]/[1.5rem] xl:text-[2rem]/[2rem] font-bold tracking-wide cursor-pointer hover:text-white transition-all `}
-              onClick={() => {
-                setActiveIndex(index);
-                setCurrentTime(Number(item.startTimeMs));
-                setCurrentLyric(item);
-              }}
-            >
-              {item.words}
+        {trackId ? (
+          lyricsIsLoading ? (
+            <Loader />
+          ) : dataLyric.length !== 0 ? (
+            dataLyric?.map((item, index) => (
+              <p
+                key={index}
+                className={`${
+                  index < activeIndex
+                    ? "text-white/60"
+                    : index === activeIndex
+                    ? "text-white/90"
+                    : "text-black opacity-80"
+                } text-[1.5rem]/[1.5rem] xl:text-[2rem]/[2rem] font-bold tracking-wide cursor-pointer hover:text-white transition-all `}
+                onClick={() => {
+                  setActiveIndex(index);
+                  setCurrentTime(Number(item.startTimeMs));
+                  setCurrentLyric(item);
+                }}
+              >
+                {item.words}
+              </p>
+            ))
+          ) : (
+            <p className="text-center text-white text-[1.5rem]/[1.5rem] xl:text-[2rem]/[2rem] font-bold tracking-wide">
+              This Track Has no Lyric
             </p>
-          ))
+          )
         ) : (
           <p className="text-center text-white text-[1.5rem]/[1.5rem] xl:text-[2rem]/[2rem] font-bold tracking-wide">
-            This Track Has no Lyric
+            No Track has been selected for now
           </p>
         )}
       </div>

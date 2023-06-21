@@ -9,9 +9,10 @@ export const ApiRequest = ({ url, params }: ApiRequestType) => {
     url: url,
     params: params,
     headers: {
-      "X-RapidAPI-Key": "68c8255426msh9d11b94a2ee4bf6p1d028bjsn720ae8f042c2",
+      "X-RapidAPI-Key": "65c39e4e6emsh7ce48ecbfe9a08dp199fffjsnd1d14d96e4d3",
       "X-RapidAPI-Host": "spotify23.p.rapidapi.com",
     },
   };
+
   return Options;
 };
