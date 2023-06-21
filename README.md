@@ -1,6 +1,6 @@
-# Audio Reader Web App
+# Audio Player Web App
 
-This repository contains a simple web application called "Audio Reader" that allows users to upload and listen to audio files. The application is built using React and utilizes the useState hook for managing state, instead of a state management library.
+This repository contains a simple web application called "Audio Player" that allows users to listen to audio files. The application is built using React and utilizes context Api to manae all the states.
 
 ## Features
 
