@@ -4,7 +4,7 @@ import { GlobalContext } from "../context/GlobalContext";
 
 type useTracksType = {
   tracks: ITrack[];
-  reset: () => void;
+  setNewTracks: (tracks: ITrack[]) => void;
   setAllTracks: (track: ITrack) => void;
 };
 
@@ -12,9 +12,9 @@ export const useTracks = (): useTracksType => {
   const {
     state: { tracks },
     setAllTracks,
-    reset,
+    setNewTracks,
   } = useContext(GlobalContext);
-  return { reset, tracks, setAllTracks };
+  return { setNewTracks, tracks, setAllTracks };
 };
 
 type useTrackInfoType = {
@@ -54,4 +54,17 @@ export const useLoading = (): useLoadingType => {
     setIsLoading,
   } = useContext(GlobalContext);
   return { isLoading, setIsLoading };
+};
+
+type useCurrentLyricType = {
+  currentLyric: ILyrics;
+  setCurrentLyric: (lyric: ILyrics) => void;
+};
+
+export const useCurrentLyric = (): useCurrentLyricType => {
+  const {
+    state: { SelectedLyric: currentLyric },
+    setCurrentLyric,
+  } = useContext(GlobalContext);
+  return { currentLyric, setCurrentLyric };
 };

@@ -28,7 +28,7 @@ const Search = () => {
             {Loading ? (
               <Loader />
             ) : (
-              <div className="space-y-2 overflow-y-auto LyricHolder flex items-center flex-col max-h-3/5 w-full ">
+              <div className="space-y-2 overflow-y-auto LyricHolder flex items-center flex-col max-h-3/5 w-full px-2 ">
                 {tracks.map((item) => (
                   <MusicCard
                     key={item.id}

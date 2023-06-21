@@ -3,7 +3,12 @@ import { Icon } from "../Icons/Icon";
 import { ProgressBar } from "./ProgressBar";
 import { useCallback, useEffect, useState } from "react";
 import { useAudioPlayer, useAudioPosition } from "react-use-audio-player";
-import { useTrackInfo } from "../../../hooks/useTrackInfo";
+import {
+  useCurrentLyric,
+  useLyrics,
+  useTrackInfo,
+} from "../../../hooks/useTrackInfo";
+import { ILyrics } from "../../../@types/track";
 
 interface AudioPlayerProps {
   setPlaying: (playing: boolean) => void;
@@ -11,6 +16,8 @@ interface AudioPlayerProps {
 
 export const AudioPlayer = ({ setPlaying }: AudioPlayerProps) => {
   const { track } = useTrackInfo();
+  const { currentLyric, setCurrentLyric } = useCurrentLyric();
+  const { lyrics } = useLyrics();
   const { togglePlayPause, loading, playing, volume } = useAudioPlayer({
     src: track?.preview_url,
     format: "mp3",
@@ -37,6 +44,30 @@ export const AudioPlayer = ({ setPlaying }: AudioPlayerProps) => {
   useEffect(() => {
     setPlaying(playing);
   }, [track?.preview_url, playing]);
+  const ConvertToSec = (duration: number) => {
+    return duration / 1000;
+  };
+  const convertToMillSec = (duration: number) => {
+    return duration * 1000;
+  };
+  const goToPositionLyric = (percentage: number) => {
+    goToPosition(percentage);
+    const currentDuration = convertToMillSec(percentage * duration);
+    const currentLyric = lyrics.findLast((lyric: ILyrics) => {
+      return (
+        Math.round(Number(lyric.startTimeMs)) <=
+        Math.round(currentDuration / 1000) * 1000
+      );
+    });
+    console.log(currentLyric);
+    if (currentLyric) {
+      setCurrentLyric(currentLyric);
+    }
+  };
+
+  useEffect(() => {
+    goToPosition(ConvertToSec(Number(currentLyric?.startTimeMs)) / duration);
+  }, [currentLyric]);
   return (
     <div className="flex h-fit items-center justify-between w-full py-2 px-[18px] bg-audio_player_bg">
       <div className="w-1/3 items-center gap-x-[21px] hidden md:flex  ">
@@ -51,7 +82,7 @@ export const AudioPlayer = ({ setPlaying }: AudioPlayerProps) => {
         )}
         <div className="flex items-center gap-x-8">
           <div className="flex flex-col ">
-            <h3 className=" text-base sm:text-lg/[23px] text-white font-[450]">
+            <h3 className=" text-base sm:text-lg/[23px] text-white font-[450] truncate max-w-[180px] ">
               {track?.title_with_featured}
             </h3>
             <p className=" text-sm sm:text-base/[20px] text-sub_title_color">
@@ -131,7 +162,7 @@ export const AudioPlayer = ({ setPlaying }: AudioPlayerProps) => {
           <ProgressBar
             width="w-full"
             value={percentComplete - 0.25}
-            onChange={goToPosition}
+            onChange={goToPositionLyric}
             min={0}
             max={100}
           />

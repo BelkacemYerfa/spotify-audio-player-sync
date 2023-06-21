@@ -1,11 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import { useLoading, useLyrics, useTrackInfo } from "../hooks/useTrackInfo";
+import {
+  useCurrentLyric,
+  useLoading,
+  useLyrics,
+  useTrackInfo,
+} from "../hooks/useTrackInfo";
 import { useParams } from "react-router-dom";
 import { Loader } from "../components/Shared/Loaders/Loader";
 import useAxios from "../hooks/useAxios";
 import axios from "axios";
 import { ApiRequest } from "../static/apiRequest";
-import { ITrackInfo } from "../@types/track";
+import { ILyrics, ITrackInfo } from "../@types/track";
+import timeFormater from "../static/timeFormater";
 
 interface LyricsProps {
   playing: boolean;
@@ -18,6 +24,7 @@ export const Lyrics = ({ playing }: LyricsProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const { track, setTrackInfo } = useTrackInfo();
   const { lyrics: dataLyric, setLyrics } = useLyrics();
+  const { currentLyric, setCurrentLyric } = useCurrentLyric();
   const getLyrics = async (id: string) => {
     const options = {
       method: "GET",
@@ -36,6 +43,7 @@ export const Lyrics = ({ playing }: LyricsProps) => {
     data,
     isLoading,
     refetch: getTrackInfo,
+    error,
   } = useAxios({
     queryKey: "searchResult",
     fetchFunc: async () =>
@@ -58,13 +66,25 @@ export const Lyrics = ({ playing }: LyricsProps) => {
   });
   useEffect(() => {
     getAllLyrics();
+    if (error) {
+      setLyrics([]);
+    }
     if (lyricsData?.data?.lyrics?.lines) {
       setLyrics(lyricsData?.data?.lyrics?.lines);
       console.log(lyricsData?.data?.lyrics?.lines);
-    } else {
-      setLyrics([]);
     }
+
+    console.log(dataLyric);
   }, [trackId, getAllLyrics, lyricsData?.data?.lyrics?.lines]);
+  useEffect(() => {
+    const lyric = dataLyric?.findIndex((lyric: ILyrics) => {
+      return (
+        currentLyric.startTimeMs >= lyric.startTimeMs &&
+        currentLyric.words <= lyric.words
+      );
+    });
+    setActiveIndex(lyric ?? -1);
+  }, [currentLyric]);
   useEffect(() => {
     getTrackInfo();
     if (data?.data.tracks[0]) {
@@ -79,7 +99,7 @@ export const Lyrics = ({ playing }: LyricsProps) => {
       };
       setTrackInfo(track);
     }
-  }, [trackId, getTrackInfo, data?.data.tracks[0]]);
+  }, [trackId, getTrackInfo, data?.data.tracks[0].id]);
   useEffect(() => {
     if (dataLyric) {
       let timeoutIds: number[] = [];
@@ -131,7 +151,12 @@ export const Lyrics = ({ playing }: LyricsProps) => {
                   : index === activeIndex
                   ? "text-white/90"
                   : "text-black opacity-80"
-              } text-[1.5rem]/[1.5rem] xl:text-[2rem]/[2rem] font-bold tracking-wide`}
+              } text-[1.5rem]/[1.5rem] xl:text-[2rem]/[2rem] font-bold tracking-wide cursor-pointer hover:text-white transition-all `}
+              onClick={() => {
+                setActiveIndex(index);
+                setCurrentTime(Number(item.startTimeMs));
+                setCurrentLyric(item);
+              }}
             >
               {item.words}
             </p>

@@ -12,6 +12,7 @@ interface IStateType {
   tracks: ITrack[];
   track: ITrackInfo;
   isLoading: ILoading;
+  SelectedLyric: ILyrics;
 }
 
 export let initialState: IStateType = {
@@ -29,19 +30,24 @@ export let initialState: IStateType = {
   isLoading: {
     loading: false,
   },
+  SelectedLyric: {
+    startTimeMs: "",
+    words: "",
+  },
 };
 
 const enum REDUCER_ACTIONS {
   SET_TRACK_LYRICS,
   SET_TRACK_INFO,
   SET_ALL_TRACKS,
-  RESET,
+  SET_NEW_TRACKS,
   SET_LOADER_SEARCH,
+  SET_SELECTED_LYRIC,
 }
 
 type Reducer_Action = {
   type: REDUCER_ACTIONS;
-  payload: ILyrics[] | ITrack | ITrackInfo | ILoading;
+  payload: ILyrics[] | ILyrics | ITrack | ITrack[] | ITrackInfo | ILoading;
 };
 
 const reducer = (state: IStateType, action: Reducer_Action): IStateType => {
@@ -50,15 +56,17 @@ const reducer = (state: IStateType, action: Reducer_Action): IStateType => {
       return { ...state, lyrics: action.payload as ILyrics[] };
     case REDUCER_ACTIONS.SET_ALL_TRACKS:
       return { ...state, tracks: [...state.tracks, action.payload as ITrack] };
-    case REDUCER_ACTIONS.RESET:
+    case REDUCER_ACTIONS.SET_NEW_TRACKS:
       return {
         ...state,
-        tracks: [],
+        tracks: action.payload as ITrack[],
       };
     case REDUCER_ACTIONS.SET_TRACK_INFO:
       return { ...state, track: action.payload as ITrackInfo };
     case REDUCER_ACTIONS.SET_LOADER_SEARCH:
       return { ...state, isLoading: action.payload as ILoading };
+    case REDUCER_ACTIONS.SET_SELECTED_LYRIC:
+      return { ...state, SelectedLyric: action.payload as ILyrics };
     default:
       throw new Error();
   }
@@ -81,10 +89,10 @@ const useGlobalProvider = (initialState: IStateType) => {
       }),
     []
   );
-  const reset = useCallback(() => {
+  const setNewTracks = useCallback((tracks: ITrack[]) => {
     dispatch({
-      type: REDUCER_ACTIONS.RESET,
-      payload: initialState.track,
+      type: REDUCER_ACTIONS.SET_NEW_TRACKS,
+      payload: tracks,
     });
   }, []);
   const setTrackInfo = useCallback((track: ITrackInfo) => {
@@ -100,7 +108,22 @@ const useGlobalProvider = (initialState: IStateType) => {
       payload: loading,
     });
   }, []);
-  return { state, setAllTracks, setLyrics, reset, setTrackInfo, setIsLoading };
+
+  const setCurrentLyric = useCallback((lyric: ILyrics) => {
+    dispatch({
+      type: REDUCER_ACTIONS.SET_SELECTED_LYRIC,
+      payload: lyric,
+    });
+  }, []);
+  return {
+    state,
+    setAllTracks,
+    setLyrics,
+    setNewTracks,
+    setTrackInfo,
+    setIsLoading,
+    setCurrentLyric,
+  };
 };
 
 type GlobalContextType = ReturnType<typeof useGlobalProvider>;
@@ -109,9 +132,10 @@ const initialContextState: GlobalContextType = {
   state: initialState,
   setAllTracks: () => {},
   setLyrics: () => {},
-  reset: () => {},
   setTrackInfo: () => {},
   setIsLoading: () => {},
+  setNewTracks: () => {},
+  setCurrentLyric: () => {},
 };
 
 export const GlobalContext =
@@ -121,8 +145,15 @@ export const GlobalProvider = ({
   children,
   ...initialState
 }: ChildrenType & IStateType): ReactElement => {
-  const { state, setAllTracks, setLyrics, reset, setTrackInfo, setIsLoading } =
-    useGlobalProvider(initialState);
+  const {
+    state,
+    setAllTracks,
+    setLyrics,
+    setNewTracks,
+    setTrackInfo,
+    setIsLoading,
+    setCurrentLyric,
+  } = useGlobalProvider(initialState);
   const { data, isLoading } = useAxios({
     queryKey: "initialTracks",
     fetchFunc: async () =>
@@ -163,7 +194,8 @@ export const GlobalProvider = ({
         setAllTracks,
         state,
         setLyrics,
-        reset,
+        setCurrentLyric,
+        setNewTracks,
         setTrackInfo,
         setIsLoading,
       }}

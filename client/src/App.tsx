@@ -13,7 +13,7 @@ function App() {
       },
     },
   });
-  const { tracks, lyrics, track, isLoading } = initialState;
+  const { tracks, lyrics, track, isLoading, SelectedLyric } = initialState;
   return (
     <QueryClientProvider client={client}>
       <div className="h-screen bg-primary_color_bg font-main_font">
@@ -24,6 +24,7 @@ function App() {
               tracks={tracks}
               track={track}
               isLoading={isLoading}
+              SelectedLyric={SelectedLyric}
             >
               <AnimatedRoutes />
             </GlobalProvider>

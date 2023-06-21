@@ -28,7 +28,7 @@ export const MusicCard = ({
   return (
     <Link
       to={`/${id}`}
-      className="flex justify-between items-center w-full py-[10px] px-4 duration-300 ease-linear cursor-pointer hover:bg-ui-gray-color-three group rounded-md"
+      className="flex justify-between items-center w-full py-[10px] pl-2 pr-4 duration-300 ease-linear cursor-pointer hover:bg-ui-gray-color-three group rounded-md"
     >
       <div className="flex items-center gap-x-5">
         <div className="flex items-center gap-x-2">
