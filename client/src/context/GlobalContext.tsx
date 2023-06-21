@@ -133,7 +133,7 @@ export const GlobalProvider = ({
             q: "Hello",
             type: "multi",
             offset: "0",
-            limit: "20",
+            limit: "15",
             numberOfTopResults: "5",
           },
         })

@@ -25,7 +25,7 @@ export const SearchBar = () => {
             q: ref.current?.value,
             type: "multi",
             offset: "0",
-            limit: "20",
+            limit: "15",
             numberOfTopResults: "5",
           },
         })
@@ -38,7 +38,7 @@ export const SearchBar = () => {
       reset();
       getNewTracks();
       setIsLoading({
-        loading: true,
+        loading: TracksLoading,
       });
       if (data?.data?.tracks) {
         console.log(data?.data?.tracks);
@@ -55,7 +55,7 @@ export const SearchBar = () => {
           setAllTracks(result);
         });
         setIsLoading({
-          loading: false,
+          loading: TracksLoading,
         });
       }
     }

@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { useLyrics } from "../hooks/useTrackInfo";
+import { useLoading, useLyrics, useTrackInfo } from "../hooks/useTrackInfo";
 import { useParams } from "react-router-dom";
+import { Loader } from "../components/Shared/Loaders/Loader";
+import useAxios from "../hooks/useAxios";
+import axios from "axios";
+import { ApiRequest } from "../static/apiRequest";
+import { ITrackInfo } from "../@types/track";
 
 interface LyricsProps {
   playing: boolean;
@@ -11,7 +16,70 @@ export const Lyrics = ({ playing }: LyricsProps) => {
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [activeIndex, setActiveIndex] = useState<number>(-1);
   const ref = useRef<HTMLDivElement>(null);
-  const { lyrics: dataLyric } = useLyrics();
+  const { track, setTrackInfo } = useTrackInfo();
+  const { lyrics: dataLyric, setLyrics } = useLyrics();
+  const getLyrics = async (id: string) => {
+    const options = {
+      method: "GET",
+      url: "https://spotify81.p.rapidapi.com/track_lyrics",
+      params: {
+        id: id,
+      },
+      headers: {
+        "X-RapidAPI-Key": "27e599f373msh6ff3cf0773d2cc5p10e9bajsnce126f0944c4",
+        "X-RapidAPI-Host": "spotify81.p.rapidapi.com",
+      },
+    };
+    return axios.request(options);
+  };
+  const {
+    data,
+    isLoading,
+    refetch: getTrackInfo,
+  } = useAxios({
+    queryKey: "searchResult",
+    fetchFunc: async () =>
+      axios.request(
+        ApiRequest({
+          url: "https://spotify23.p.rapidapi.com/tracks/",
+          params: {
+            ids: trackId ?? track?.id,
+          },
+        })
+      ),
+  });
+  const {
+    data: lyricsData,
+    isLoading: lyricsIsLoading,
+    refetch: getAllLyrics,
+  } = useAxios({
+    queryKey: "lyrics",
+    fetchFunc: () => getLyrics(trackId ?? track?.id),
+  });
+  useEffect(() => {
+    getAllLyrics();
+    if (lyricsData?.data?.lyrics?.lines) {
+      setLyrics(lyricsData?.data?.lyrics?.lines);
+      console.log(lyricsData?.data?.lyrics?.lines);
+    } else {
+      setLyrics([]);
+    }
+  }, [trackId, getAllLyrics, lyricsData?.data?.lyrics?.lines]);
+  useEffect(() => {
+    getTrackInfo();
+    if (data?.data.tracks[0]) {
+      const track: ITrackInfo = {
+        id: data?.data.tracks[0].id,
+        title_with_featured: data?.data.tracks[0].name,
+        song_art_image_thumbnail_url: data?.data.tracks[0].album.images[0].url,
+        date: data?.data.tracks[0].album.release_date,
+        preview_url: data?.data.tracks[0].preview_url,
+        playing: false,
+        name: data?.data.tracks[0].artists[0].name,
+      };
+      setTrackInfo(track);
+    }
+  }, [trackId, getTrackInfo, data?.data.tracks[0]]);
   useEffect(() => {
     if (dataLyric) {
       let timeoutIds: number[] = [];
@@ -51,7 +119,9 @@ export const Lyrics = ({ playing }: LyricsProps) => {
   return (
     <div className="max-w-[80%] m-auto py-10 ">
       <div className=" space-y-3 " ref={ref}>
-        {dataLyric.length !== 0 ? (
+        {lyricsIsLoading ? (
+          <Loader />
+        ) : dataLyric.length !== 0 ? (
           dataLyric?.map((item, index) => (
             <p
               key={index}
