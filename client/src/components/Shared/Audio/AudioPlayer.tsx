@@ -19,12 +19,9 @@ export const AudioPlayer = ({ setPlaying }: AudioPlayerProps) => {
   const { currentLyric, setCurrentLyric } = useCurrentLyric();
   const { lyrics } = useLyrics();
   const { togglePlayPause, loading, playing, volume } = useAudioPlayer({
-    src: track?.preview_url,
+    src: "https://redirector.googlevideo.com/videoplayback?expire=1696642026&ei=il8gZf2pEtGWy_sPtIe2KA&ip=198.98.59.215&id=o-ANvNh4hiMnvu_HnxpDunPlrgyBgXtphoSESyBmNAi2ln&itag=140&source=youtube&requiressl=yes&mh=P3&mm=31%2C29&mn=sn-ab5l6nrd%2Csn-ab5sznzk&ms=au%2Crdu&mv=m&mvi=3&pl=24&initcwndbps=168750&siu=1&vprv=1&svpuc=1&mime=audio%2Fmp4&ns=e63xr7igZkTd2PFiVFT4zzkP&gir=yes&clen=3478271&dur=214.877&lmt=1684139577643757&mt=1696620072&fvip=1&keepalive=yes&fexp=24007246&beids=24350018&c=WEB&txp=4532434&n=-2P4Y3QiIYX_dg&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cns%2Cgir%2Cclen%2Cdur%2Clmt&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=AK1ks_kwRgIhAKQ5m3_y4UWU-PYFDVjTI6lekboToZIIFujMx6U0d9PoAiEA19p2ppFxfQycIw7tt2P1L163SkbyvbL5oxNI4wUF1YM%3D&sig=AGM4YrMwRAIgfIgHZMoPAsGvQKEEFW2DsQDYLL27YQeUTgz8D4PFnFQCIGsUYBbhU1fC9L0gabPOER7Jmc7nckTDeb_XayotChrB&range=0-",
     format: "mp3",
     autoplay: false,
-    onend: () => {
-      console.log("hi");
-    },
   });
   const { percentComplete, duration, seek } = useAudioPosition();
   const goToPosition = useCallback(

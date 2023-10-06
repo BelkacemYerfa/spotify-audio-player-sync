@@ -30,7 +30,7 @@ export const Lyrics = ({ playing }: LyricsProps) => {
       method: "GET",
       url: "https://spotify81.p.rapidapi.com/track_lyrics",
       params: {
-        id: id,
+        id,
       },
       headers: {
         "X-RapidAPI-Key": "27e599f373msh6ff3cf0773d2cc5p10e9bajsnce126f0944c4",
@@ -109,34 +109,28 @@ export const Lyrics = ({ playing }: LyricsProps) => {
           setActiveIndex(index);
           setCurrentTime(Number(dataLyric[index].startTimeMs));
           const nextSibling = ref.current?.querySelectorAll("p")[index + 1];
-          const current = ref.current?.querySelectorAll("p")[index];
+          const current = ref.current?.querySelectorAll("p")[
+            index
+          ] as HTMLElement;
           if (nextSibling) {
-            current?.scrollIntoView({
+            current.scrollIntoView({
               behavior: "smooth",
               block: "center",
               inline: "nearest",
             });
           }
-
-          if (index === dataLyric.length - 1 && playing) {
-            setActiveIndex(-1);
-            setCurrentTime(0);
-          }
         }, Number(dataLyric[index].startTimeMs) - currentTime);
-
         timeoutIds.push(timeoutId);
-
         if (!playing) {
           timeoutIds.forEach((timeoutId) => clearTimeout(timeoutId));
           break;
         }
       }
-
       return () => {
         timeoutIds.forEach((timeoutId) => clearTimeout(timeoutId));
       };
     }
-  }, [dataLyric, playing, trackId]);
+  }, [dataLyric, playing, activeIndex]);
   return (
     <div className="max-w-[80%] m-auto py-10 ">
       <div className=" space-y-3 " ref={ref}>
@@ -153,7 +147,7 @@ export const Lyrics = ({ playing }: LyricsProps) => {
                     : index === activeIndex
                     ? "text-white/90"
                     : "text-black opacity-80"
-                } text-[1.5rem]/[1.5rem] xl:text-[2rem]/[2rem] font-bold tracking-wide cursor-pointer hover:text-white transition-all `}
+                } text-[1.5rem]/[1.5rem] xl:text-[2rem]/[2rem] font-bold tracking-wide cursor-pointer hover:text-white transition-all w-fit `}
                 onClick={() => {
                   setActiveIndex(index);
                   setCurrentTime(Number(item.startTimeMs));

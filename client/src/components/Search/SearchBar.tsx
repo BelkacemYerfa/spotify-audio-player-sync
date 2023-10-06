@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useRef } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { Icon } from "../Shared/Icons/Icon";
 import axios from "axios";
 import useAxios from "../../hooks/useAxios";
@@ -6,11 +6,13 @@ import { ITrack } from "../../@types/track";
 import { useLoading, useTracks } from "../../hooks/useTrackInfo";
 import { ApiRequest } from "../../static/apiRequest";
 import timeFormater from "../../static/timeFormater";
+import { useDebounce } from "../../hooks/useDebounce";
 
 export const SearchBar = () => {
-  const ref = useRef<HTMLInputElement>(null);
+  const [query, setQuery] = useState<string>("");
+  const debounceValue = useDebounce(query, 500);
   const { setNewTracks } = useTracks();
-  const { isLoading, setIsLoading } = useLoading();
+  const { setIsLoading } = useLoading();
   const {
     data,
     isLoading: TracksLoading,
@@ -22,7 +24,7 @@ export const SearchBar = () => {
         ApiRequest({
           url: "https://spotify23.p.rapidapi.com/search/",
           params: {
-            q: ref.current?.value ?? "Hello",
+            q: query ?? "Jasmine",
             type: "multi",
             offset: "0",
             limit: "15",
@@ -31,9 +33,7 @@ export const SearchBar = () => {
         })
       ),
   });
-  const submitForm = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const query = ref.current?.value;
+  const submitForm = async () => {
     console.log(query);
     let results: ITrack[] = [];
     await getNewTracks();
@@ -54,16 +54,18 @@ export const SearchBar = () => {
     }
   };
   useEffect(() => {
+    if (debounceValue) {
+      submitForm();
+    }
+  }, [debounceValue]);
+  useEffect(() => {
     setIsLoading({
       loading: TracksLoading,
     });
     console.log(TracksLoading);
   }, [TracksLoading]);
   return (
-    <form
-      className=" w-full flex justify-center p-2"
-      onSubmit={(e) => submitForm(e)}
-    >
+    <form className=" w-full flex justify-center p-2">
       <div className="relative w-full h-fit flex items-center justify-center gap-x-2 px-2 py-3 bg-search_bar_background rounded-3xl">
         <div className="absolute left-4 h-7 w-7 inset-0 my-auto">
           <Icon
@@ -75,8 +77,8 @@ export const SearchBar = () => {
           />
         </div>
         <input
-          ref={ref}
           type="search"
+          onChange={(e) => setQuery(e.target.value)}
           placeholder="What do you want to listen to?"
           className="w-full outline-none bg-search_bar_background indent-10"
         />
